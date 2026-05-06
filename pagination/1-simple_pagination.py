@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Module for simple pagination of a dataset."""
 import csv
+import math
 from typing import List, Tuple
 
 
