@@ -6,7 +6,7 @@ from typing import List, Tuple, Dict, Any
 
 
 def index_range(page: int, page_size: int) -> Tuple[int, int]:
-    """Return a tuple of start and end indexes for the given pagination params."""
+    """Return start and end indexes for the given pagination params."""
     start = (page - 1) * page_size
     end = start + page_size
     return (start, end)
@@ -22,7 +22,7 @@ class Server:
         self.__dataset = None
 
     def dataset(self) -> List[List]:
-        """Return cached dataset, loading from CSV file if necessary."""
+        """Cached dataset loaded from CSV file."""
         if self.__dataset is None:
             with open(self.DATA_FILE) as f:
                 reader = csv.reader(f)
@@ -31,19 +31,21 @@ class Server:
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        """Return the correct page of the dataset based on page and page_size."""
-        assert isinstance(page, int) and page > 0
-        assert isinstance(page_size, int) and page_size > 0
+        """Return the correct page of the dataset."""
+        assert type(page) is int and page > 0
+        assert type(page_size) is int and page_size > 0
         start, end = index_range(page, page_size)
         dataset = self.dataset()
         if start >= len(dataset):
             return []
         return dataset[start:end]
 
-    def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict[str, Any]:
+    def get_hyper(self, page: int = 1,
+                  page_size: int = 10) -> Dict[str, Any]:
         """Return hypermedia pagination info dictionary for the given page."""
         data = self.get_page(page, page_size)
-        total_pages = math.ceil(len(self.dataset()) / page_size)
+        total = len(self.dataset())
+        total_pages = math.ceil(total / page_size)
         return {
             "page_size": len(data),
             "page": page,
