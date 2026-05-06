@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Module for simple pagination of a dataset."""
 import csv
-import math
 from typing import List, Tuple
 
 
@@ -32,8 +31,8 @@ class Server:
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         """Return the correct page of the dataset based on page and page_size."""
-        assert isinstance(page, int) and page > 0
-        assert isinstance(page_size, int) and page_size > 0
+        assert type(page) is int and page > 0
+        assert type(page_size) is int and page_size > 0
         start, end = index_range(page, page_size)
         dataset = self.dataset()
         if start >= len(dataset):
