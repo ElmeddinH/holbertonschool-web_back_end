@@ -1,31 +1,38 @@
 #!/usr/bin/env python3
-"""Module for deletion-resilient hypermedia pagination."""
+"""
+Deletion-resilient hypermedia pagination
+"""
+
 import csv
 import math
 from typing import List, Dict
 
 
 class Server:
-    """Server class to paginate a database of popular baby names."""
-
+    """Server class to paginate a database of popular baby names.
+    """
     DATA_FILE = "Popular_Baby_Names.csv"
 
     def __init__(self):
-        """Initialize Server with no cached dataset or indexed dataset."""
+        """Initialize the Server with no cached datasets.
+        """
         self.__dataset = None
         self.__indexed_dataset = None
 
     def dataset(self) -> List[List]:
-        """Cached dataset loaded from CSV file."""
+        """Cached dataset
+        """
         if self.__dataset is None:
             with open(self.DATA_FILE) as f:
                 reader = csv.reader(f)
                 dataset = [row for row in reader]
             self.__dataset = dataset[1:]
+
         return self.__dataset
 
     def indexed_dataset(self) -> Dict[int, List]:
-        """Dataset indexed by sorting position, starting at 0."""
+        """Dataset indexed by sorting position, starting at 0
+        """
         if self.__indexed_dataset is None:
             dataset = self.dataset()
             truncated_dataset = dataset[:1000]
@@ -36,9 +43,11 @@ class Server:
 
     def get_hyper_index(self, index: int = None,
                         page_size: int = 10) -> Dict:
-        """Return deletion-resilient pagination info for the given index."""
+        """Return deletion-resilient pagination starting at the given index.
+        """
+        assert index is not None and isinstance(index, int)
         indexed = self.indexed_dataset()
-        assert isinstance(index, int) and 0 <= index < len(self.dataset())
+        assert 0 <= index < len(indexed)
         data = []
         current = index
         while len(data) < page_size:
@@ -46,8 +55,8 @@ class Server:
                 data.append(indexed[current])
             current += 1
         return {
-            "index": index,
-            "data": data,
-            "page_size": len(data),
-            "next_index": current
+            'index': index,
+            'next_index': current,
+            'page_size': len(data),
+            'data': data
         }
