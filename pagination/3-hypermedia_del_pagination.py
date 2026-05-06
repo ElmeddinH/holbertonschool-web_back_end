@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Module for deletion-resilient hypermedia pagination."""
 import csv
-from typing import List, Dict, Any
+import math
+from typing import List, Dict
 
 
 class Server:
@@ -15,7 +16,7 @@ class Server:
         self.__indexed_dataset = None
 
     def dataset(self) -> List[List]:
-        """Return cached dataset, loading from CSV file if necessary."""
+        """Cached dataset loaded from CSV file."""
         if self.__dataset is None:
             with open(self.DATA_FILE) as f:
                 reader = csv.reader(f)
@@ -24,7 +25,7 @@ class Server:
         return self.__dataset
 
     def indexed_dataset(self) -> Dict[int, List]:
-        """Return dataset indexed by position, starting at 0."""
+        """Dataset indexed by sorting position, starting at 0."""
         if self.__indexed_dataset is None:
             dataset = self.dataset()
             self.__indexed_dataset = {
@@ -33,13 +34,13 @@ class Server:
         return self.__indexed_dataset
 
     def get_hyper_index(self, index: int = None,
-                        page_size: int = 10) -> Dict[str, Any]:
+                        page_size: int = 10) -> Dict:
         """Return deletion-resilient pagination info for the given index."""
-        assert isinstance(index, int) and 0 <= index < len(self.dataset())
         indexed = self.indexed_dataset()
+        assert type(index) is int and 0 <= index < len(indexed)
         data = []
         current = index
-        while len(data) < page_size and current < len(self.dataset()) + index:
+        while len(data) < page_size:
             if current in indexed:
                 data.append(indexed[current])
             current += 1
