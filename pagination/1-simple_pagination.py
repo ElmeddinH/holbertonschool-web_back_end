@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 
 def index_range(page: int, page_size: int) -> Tuple[int, int]:
-    """Return a tuple of start and end indexes for the given pagination params."""
+    """Return start and end indexes for the given pagination params."""
     start = (page - 1) * page_size
     end = start + page_size
     return (start, end)
@@ -31,7 +31,7 @@ class Server:
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        """Return the correct page of the dataset based on page and page_size."""
+        """Return the correct page of the dataset."""
         assert type(page) is int and page > 0
         assert type(page_size) is int and page_size > 0
         start, end = index_range(page, page_size)
