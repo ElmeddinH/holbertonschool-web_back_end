@@ -37,7 +37,7 @@ class Server:
                         page_size: int = 10) -> Dict:
         """Return deletion-resilient pagination info for the given index."""
         indexed = self.indexed_dataset()
-        assert type(index) is int and 0 <= index < len(indexed)
+        assert isinstance(index, int) and 0 <= index < len(self.dataset())
         data = []
         current = index
         while len(data) < page_size:
