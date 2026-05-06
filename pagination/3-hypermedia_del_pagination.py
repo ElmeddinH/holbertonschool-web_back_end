@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Module for deletion-resilient hypermedia pagination."""
 import csv
+import math
 from typing import List, Dict
 
 
