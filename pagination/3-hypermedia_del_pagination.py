@@ -46,10 +46,11 @@ class Server:
         """Return deletion-resilient pagination info for the given index.
         """
         indexed = self.indexed_dataset()
-        assert isinstance(index, int) and 0 <= index < len(indexed)
+        dataset_size = len(indexed)
+        assert index is not None and 0 <= index < dataset_size
         data = []
         current = index
-        while len(data) < page_size:
+        while len(data) < page_size and current < dataset_size:
             if current in indexed:
                 data.append(indexed[current])
             current += 1
