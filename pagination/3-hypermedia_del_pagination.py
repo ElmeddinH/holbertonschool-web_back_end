@@ -43,10 +43,10 @@ class Server:
 
     def get_hyper_index(self, index: int = None,
                         page_size: int = 10) -> Dict:
-        """Return deletion-resilient pagination starting at the given index.
+        """Return deletion-resilient pagination info for the given index.
         """
-        assert index is not None and isinstance(index, int)
         indexed = self.indexed_dataset()
+        assert index is not None and isinstance(index, int)
         assert 0 <= index < len(indexed)
         data = []
         current = index
@@ -56,7 +56,7 @@ class Server:
             current += 1
         return {
             'index': index,
-            'next_index': current,
+            'data': data,
             'page_size': len(data),
-            'data': data
+            'next_index': current
         }
