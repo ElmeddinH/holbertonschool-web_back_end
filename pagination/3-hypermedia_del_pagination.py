@@ -49,7 +49,7 @@ class Server:
         assert index is not None and 0 <= index < len(indexed)
         data = []
         current = index
-        while len(data) < page_size:
+        while len(data) < page_size and current < len(self.dataset()):
             if current in indexed:
                 data.append(indexed[current])
             current += 1
