@@ -28,13 +28,13 @@ class Auth:
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
-        """Register a new user; raises ValueError if email exists"""
+        """Register a new user in the database with email and password"""
         try:
             self._db.find_user_by(email=email)
-            raise ValueError("User {} already exists".format(email))
         except NoResultFound:
             hashed = _hash_password(password)
             return self._db.add_user(email, hashed)
+        raise ValueError("User {} already exists".format(email))
 
     def valid_login(self, email: str, password: str) -> bool:
         """Validate email and password; return True if correct"""
@@ -77,19 +77,19 @@ class Auth:
         """Generate a reset token for the user; raises ValueError"""
         try:
             user = self._db.find_user_by(email=email)
-            token = _generate_uuid()
-            self._db.update_user(user.id, reset_token=token)
-            return token
         except NoResultFound:
             raise ValueError("User {} not found".format(email))
+        token = _generate_uuid()
+        self._db.update_user(user.id, reset_token=token)
+        return token
 
     def update_password(self, reset_token: str, password: str) -> None:
         """Update password via reset_token; raises ValueError if invalid"""
         try:
             user = self._db.find_user_by(reset_token=reset_token)
-            hashed = _hash_password(password)
-            self._db.update_user(
-                user.id, hashed_password=hashed, reset_token=None
-            )
         except NoResultFound:
             raise ValueError("Invalid reset token")
+        hashed = _hash_password(password)
+        self._db.update_user(
+            user.id, hashed_password=hashed, reset_token=None
+        )
