@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Flask app with timezone inference from URL, user settings, or default."""
-from typing import Dict, Optional, Union
+from typing import Optional, Dict
 from flask import Flask, render_template, request, g
 from flask_babel import Babel, format_datetime
+from datetime import datetime
 import pytz
 from pytz import UnknownTimeZoneError
-from datetime import datetime
 
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
@@ -27,7 +27,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 
-def get_user() -> Optional[Dict[str, Optional[str]]]:
+def get_user() -> Optional[Dict]:
     """Retrieve a user dict based on login_as URL parameter.
 
     Returns the user dict if found, None otherwise.
@@ -42,11 +42,7 @@ def get_user() -> Optional[Dict[str, Optional[str]]]:
 def get_locale() -> str:
     """Determine locale with priority order.
 
-    Priority:
-    1. URL ?locale= parameter
-    2. Logged-in user locale preference
-    3. Request Accept-Language header
-    4. Default locale
+    Priority: URL param > user setting > Accept-Language > default.
     """
     locale = request.args.get('locale')
     if locale and locale in app.config['LANGUAGES']:
@@ -56,13 +52,11 @@ def get_locale() -> str:
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-def get_timezone() -> str:
+def get_timezone() -> Optional[str]:
     """Determine appropriate timezone with priority order.
 
-    Priority:
-    1. URL ?timezone= parameter
-    2. Logged-in user timezone preference
-    3. Default timezone UTC
+    Priority: URL param > user setting > default UTC.
+    Returns validated timezone string or None to use default.
     """
     timezone = request.args.get('timezone')
     if timezone:
@@ -79,7 +73,7 @@ def get_timezone() -> str:
                 return user_tz
             except UnknownTimeZoneError:
                 pass
-    return app.config['BABEL_DEFAULT_TIMEZONE']
+    return None
 
 
 babel = Babel(app, locale_selector=get_locale, timezone_selector=get_timezone)
@@ -94,7 +88,7 @@ def before_request() -> None:
 @app.route('/')
 def index() -> str:
     """Render the index page with user login info and current time."""
-    current_time = format_datetime(datetime.now())
+    current_time = format_datetime(datetime.now(pytz.utc))
     return render_template('7-index.html', current_time=current_time)
 
 
