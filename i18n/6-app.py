@@ -22,7 +22,6 @@ class Config:
 
 app = Flask(__name__)
 app.config.from_object(Config)
-babel = Babel(app)
 
 
 def get_user() -> Optional[Dict[str, Optional[str]]]:
@@ -37,30 +36,30 @@ def get_user() -> Optional[Dict[str, Optional[str]]]:
         return None
 
 
-@app.before_request
-def before_request() -> None:
-    """Set the current user on flask.g before each request."""
-    g.user = get_user()
-
-
-@babel.localeselector
 def get_locale() -> str:
     """Determine locale with priority order.
 
     Priority:
     1. URL ?locale= parameter
-    2. Logged-in user's locale preference
+    2. Logged-in user locale preference
     3. Request Accept-Language header
     4. Default locale
     """
     locale = request.args.get('locale')
     if locale and locale in app.config['LANGUAGES']:
         return locale
-
     if g.user and g.user.get('locale') in app.config['LANGUAGES']:
         return g.user['locale']
-
     return request.accept_languages.best_match(app.config['LANGUAGES'])
+
+
+babel = Babel(app, locale_selector=get_locale)
+
+
+@app.before_request
+def before_request() -> None:
+    """Set the current user on flask.g before each request."""
+    g.user = get_user()
 
 
 @app.route('/')

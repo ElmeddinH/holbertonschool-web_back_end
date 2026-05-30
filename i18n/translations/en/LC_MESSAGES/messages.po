@@ -1,5 +1,4 @@
 # English translations for Holberton i18n project
-# Copyright (C) 2024
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
@@ -26,3 +25,6 @@ msgstr "You are logged in as %(username)s."
 
 msgid "not_logged_in"
 msgstr "You are not logged in."
+
+msgid "current_time_is"
+msgstr "The current time is %(current_time)s."
