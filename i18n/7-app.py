@@ -5,7 +5,6 @@ from flask import Flask, render_template, request, g
 from flask_babel import Babel, format_datetime
 from datetime import datetime
 import pytz
-from pytz import UnknownTimeZoneError
 
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
@@ -47,7 +46,8 @@ def get_locale() -> str:
     locale = request.args.get('locale')
     if locale and locale in app.config['LANGUAGES']:
         return locale
-    if g.user and g.user.get('locale') in app.config['LANGUAGES']:
+    if getattr(g, 'user', None) and \
+            g.user.get('locale') in app.config['LANGUAGES']:
         return g.user['locale']
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
@@ -63,15 +63,16 @@ def get_timezone() -> Optional[str]:
         try:
             pytz.timezone(timezone)
             return timezone
-        except UnknownTimeZoneError:
+        except pytz.exceptions.UnknownTimeZoneError:
             pass
-    if g.user:
-        user_tz = g.user.get('timezone')
+    user = getattr(g, 'user', None)
+    if user:
+        user_tz = user.get('timezone')
         if user_tz:
             try:
                 pytz.timezone(user_tz)
                 return user_tz
-            except UnknownTimeZoneError:
+            except pytz.exceptions.UnknownTimeZoneError:
                 pass
     return None
 
